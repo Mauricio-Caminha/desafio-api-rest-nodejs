@@ -58,4 +58,24 @@ describe("Users routes", () => {
       sequencia_refeicoes: 0,
     });
   });
+
+  test("Should be able to create a new meal", async () => {
+    const createUserResponse = await request(app.server).post("/users").send({
+      email: "example@email.com",
+      nome: "Example",
+      senha: "example",
+    });
+
+    const cookies = createUserResponse.get("Set-Cookie") ?? [];
+
+    await request(app.server)
+      .post("/users/user/meal")
+      .set("Cookie", cookies)
+      .send({
+        nome: "Example meal",
+        descricao: "Example description",
+        dentro_da_dieta: true,
+      })
+      .expect(201);
+  });
 });
