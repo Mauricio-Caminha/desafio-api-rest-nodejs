@@ -16,6 +16,13 @@ declare module "knex/types/tables" {
       atualizado_as: string;
     };
 
-    meals: {};
+    meals: {
+      id: string;
+      user_id: string;
+      nome: string;
+      descricao: string;
+      data_hora: string;
+      esta_dentro_da_dieta: boolean;
+    };
   }
 }
