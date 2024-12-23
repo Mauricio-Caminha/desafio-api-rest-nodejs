@@ -78,4 +78,42 @@ describe("Users routes", () => {
       })
       .expect(201);
   });
+
+  test("Should be able to get all meals of the user", async () => {
+    const createUserResponse = await request(app.server).post("/users").send({
+      email: "example@email.com",
+      nome: "Example",
+      senha: "example",
+    });
+
+    const cookies = createUserResponse.get("Set-Cookie") ?? [];
+
+    await request(app.server)
+      .post("/users/user/meal")
+      .set("Cookie", cookies)
+      .send({
+        nome: "Example meal",
+        descricao: "Example description",
+        dentro_da_dieta: true,
+      })
+      .expect(201);
+
+    const getMealsResponse = await request(app.server)
+      .get("/users/user/meals")
+      .set("Cookie", cookies)
+      .expect(200);
+
+    expect(getMealsResponse.body.meals).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(String),
+          nome: expect.any(String),
+          descricao: expect.any(String),
+          data_hora: expect.any(String),
+          esta_dentro_da_dieta: expect.any(Number),
+          user_id: expect.any(String),
+        }),
+      ])
+    );
+  });
 });

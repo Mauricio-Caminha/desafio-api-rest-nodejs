@@ -103,4 +103,27 @@ export async function usersRoutes(app: FastifyInstance) {
       reply.status(201).send();
     }
   );
+
+  app.get(
+    "/user/meals",
+    {
+      preHandler: [checkSessionIdExists],
+    },
+    async (request, reply) => {
+      const session_id = request.cookies.session_id;
+
+      const user = await knex("users")
+        .select("id")
+        .where({ session_id })
+        .first();
+
+      if (!user) {
+        reply.status(404).send();
+        return;
+      }
+      const meals = await knex("meals").where({ user_id: user.id });
+
+      reply.send({ meals });
+    }
+  );
 }
