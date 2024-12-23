@@ -126,4 +126,33 @@ export async function usersRoutes(app: FastifyInstance) {
       reply.send({ meals });
     }
   );
+
+  app.get(
+    "/user/meal/:id",
+    {
+      preHandler: [checkSessionIdExists],
+    },
+    async (request, reply) => {
+      const session_id = request.cookies.session_id;
+
+      const paramsSchema = z.object({
+        id: z.string().uuid(),
+      });
+
+      const { id } = paramsSchema.parse(request.params);
+
+      const user = await knex("users")
+        .select("id")
+        .where({ session_id })
+        .first();
+
+      if (!user) {
+        reply.status(404).send();
+        return;
+      }
+      const meal = await knex("meals").where({ user_id: user.id, id });
+
+      reply.send({ meal });
+    }
+  );
 }
