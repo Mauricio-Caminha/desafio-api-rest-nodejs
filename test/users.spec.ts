@@ -191,4 +191,41 @@ describe("Users routes", () => {
       .set("Cookie", cookies)
       .expect(204);
   });
+
+  test("Should be able to update a meal of the current user by id", async () => {
+    const createUserResponse = await request(app.server).post("/users").send({
+      email: "example@email.com",
+      nome: "Example",
+      senha: "example",
+    });
+
+    const cookies = createUserResponse.get("Set-Cookie") ?? [];
+
+    await request(app.server)
+      .post("/users/user/meal")
+      .set("Cookie", cookies)
+      .send({
+        nome: "Example meal",
+        descricao: "Example description",
+        dentro_da_dieta: true,
+      })
+      .expect(201);
+
+    const getMealsResponse = await request(app.server)
+      .get("/users/user/meals")
+      .set("Cookie", cookies)
+      .expect(200);
+
+    const mealId = getMealsResponse.body.meals[0].id;
+
+    await request(app.server)
+      .put(`/users/user/meal/${mealId}`)
+      .set("Cookie", cookies)
+      .send({
+        nome: "Updated meal",
+        descricao: "Updated description",
+        dentro_da_dieta: false,
+      })
+      .expect(204);
+  });
 });
